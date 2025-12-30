@@ -348,7 +348,7 @@ def question7():
     failure across all games.
     """
 
-def question11():
+def question8():
     """
     What is the output of the test cases underneath test_cases/q3?
     """
