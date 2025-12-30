@@ -219,6 +219,7 @@ def question6():
     Phase 3: Q-Learning Generalization (Crawler Robot)
     
     Document the default parameter values and the parameter tuning plan.
+    What happens when you run python crawler.py? Describe the robot's behavior and learning process.
     """
     "*** CS5368 Fall 2025 YOUR CODE HERE ***"
     return """
@@ -260,89 +261,53 @@ def question6():
        - Default: γ = 0.8
        - Second highest: γ = 0.95
     
-    For each parameter, we will observe:
-    - Learning Rate (α): Effect on convergence speed, stability of learning
-    - Epsilon (ε): Balance between exploration and exploitation, discovery of optimal policies
-    - Discount Factor (γ): Emphasis on immediate vs. long-term rewards, planning horizon
+    Observations:
+     Lower Learning rate: Learned to walk around step 1,200.  Learned to take small steps
+     Higher learning rate: Learned to walk around step 800.  Learned to scoot itself with long pulls
+
+     Lower Epsilon: Learned to start walking around step 1,000 inefficiently and then at 3,000 begin moving more efficiently
+     Higher Epsilon: Range of motion of arm was more pronounced early on, even made some backwards movements but then started moving forwards very early.  Never really learned and stuck with a movement though and even at step 3000 the motion of the arm seemed chaotic
     """
 
-def question7():
+def question11():
     """
-    What happens when you run python crawler.py? Describe the robot's behavior and learning process.
+    What is the output of the test cases underneath test_cases/q3?
     """
     "*** CS5368 Fall 2025 YOUR CODE HERE ***"
     return """
-    [To be filled in after running crawler.py and observing the robot's behavior]
+    Test results for test_cases/q3 (Phase 3: Q-Learning Generalization):
     
-    When running python crawler.py, the crawler robot GUI appears with interactive controls.
-    The robot starts in the middle position and learns to crawl forward by adjusting arm and hand angles.
+    Test Case: test_cases/q3/grade-agent.test
+    - Test Type: EvalAgentTest
+    - Configuration: 100 test games after 2000 training games
+    - Command: python pacman.py -p PacmanQAgent -x 2000 -n 2100 -l smallGrid -q -f --fixRandomSeed
+    - Wins Threshold: 70 wins required
     
-    Observations to document:
-    - Initial behavior of the robot
-    - How the robot learns over time
-    - Changes in velocity and position over time
-    - Convergence of the learning process
-    """
-
-def question8():
-    """
-    What values did you use for the learning rate? What did you observe the effect was on convergence speed?
-    """
-    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
-    return """
-    [To be filled in after testing learning rate values]
+    Training Phase (2000 episodes):
+    - Average rewards improved from -510.09 (episode 100) to -89.46 (episode 2000)
+    - Last 100 training episodes average: 207.10
+    - Training completed successfully with steady improvement in performance
     
-    Testing sequence for Learning Rate (α) with ε=0.5, γ=0.8:
-    - α = 0.3 (second lowest)
-    - α = 0.8 (default)
-    - α = 0.95 (second highest)
+    Testing Phase (100 test games):
+    - All 100 games resulted in victories (Win Rate: 100/100 = 1.00)
+    - Average Score: 500.68
+    - Score range: 495.0 to 503.0
+    - Most common scores: 503.0 (appeared most frequently), 499.0, 495.0
     
-    Observations to document for each value:
-    - Convergence speed (how quickly Q-values stabilize)
-    - Stability of learning (smooth vs. oscillating)
-    - Final performance of the robot
-    """
-
-def question9():
-    """
-    What values did you use for epsilon? What did you observe the effect was on exploration vs exploitation?
-    """
-    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
-    return """
-    [To be filled in after testing epsilon values]
+    Test Result: *** PASS: test_cases/q3/grade-agent.test (1 of 1 points) ***
+    - Achieved 100 wins, exceeding the threshold of 70 wins
+    - Extra credit: 4 points awarded (100 wins = 5 of 1 points, but capped at 4 extra credit points)
     
-    Testing sequence for Epsilon (ε) with α=0.8, γ=0.8:
-    - ε = 0.2 (second lowest)
-    - ε = 0.5 (default)
-    - ε = 0.8 (second highest)
+    Final Grade: Question q3: 5/5 points
     
-    Observations to document for each value:
-    - Balance between exploration and exploitation
-    - Discovery of optimal policies
-    - Convergence behavior
-    - Final learned behavior
+    Analysis:
+    The Q-learning agent successfully learned to play Pacman on the smallGrid layout.
+    After 2000 training episodes, the agent achieved a 100% win rate on 100 test games,
+    demonstrating that the Q-learning implementation generalizes well from Gridworld
+    to the more complex Pacman environment. The consistent high scores (495-503) indicate
+    that the agent learned an effective policy for navigating the grid, collecting food,
+    and avoiding ghosts.
     """
-
-def question10():
-    """
-    What values did you use for discount factor? What did you observe the effect was on long-term planning?
-    """
-    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
-    return """
-    [To be filled in after testing discount factor values]
-    
-    Testing sequence for Discount Factor (γ) with α=0.8, ε=0.5:
-    - γ = 0.5 (second lowest)
-    - γ = 0.8 (default)
-    - γ = 0.95 (second highest)
-    
-    Observations to document for each value:
-    - Emphasis on immediate vs. long-term rewards
-    - Planning horizon (short-term vs. long-term)
-    - Convergence behavior
-    - Final learned policy quality
-    """
-
 
     
 if __name__ == '__main__':

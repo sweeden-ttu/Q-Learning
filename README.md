@@ -138,6 +138,26 @@ Play around with the various learning parameters to see how they affect the agen
 - **Epsilon (ε)** - Exploration rate for epsilon-greedy action selection  
 - **Discount Factor (γ)** - How much future rewards are valued relative to immediate rewards
 
+**Observed Behaviors When Adjusting Parameters:**
+
+**Lower Learning Rate (α = 0.3):**
+- Learned to walk around step 1,200
+- Learned to take small steps
+
+**Higher Learning Rate (α = 0.95):**
+- Learned to walk around step 800
+- Learned to scoot itself with long pulls
+
+**Lower Epsilon (ε = 0.2):**
+- Learned to start walking around step 1,000 inefficiently
+- At step 3,000, began moving more efficiently
+
+**Higher Epsilon (ε = 0.8):**
+- Range of motion of arm was more pronounced early on
+- Even made some backwards movements but then started moving forwards very early
+- Never really learned and stuck with a movement though
+- Even at step 3000, the motion of the arm seemed chaotic
+
 **Implementation Steps:**
 
 1. Run the crawler and observe the learning behavior:
@@ -149,6 +169,12 @@ Play around with the various learning parameters to see how they affect the agen
    - [ ] Adjust discount factor and observe how it affects long-term planning
 3. Answer in [`analysis.py`](./analysis.py):
    - [ ] `What happens when you run python crawler.py? Describe the robot's behavior and learning process.`
+   - [ ] `What values did you use for the learning rate? What did you observe the effect was on convergence speed?`
+   - [ ] `What values did you use for epsilon? What did you observe the effect was on on exploration vs exploitation?`
+   - [ ] `What values did you use for discount factor? What did you observe the effect was on on long-term planning?`
+4. Run test cases and document results:
+   - [ ] Run the test cases underneath [`test_cases/q3`](./test_cases/q3/CONFIG)
+   - [ ] Document the output in [`analysis.py`](./analysis.py)
 
 ---
 
