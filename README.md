@@ -109,7 +109,9 @@ Your final Q-values should resemble those of your value iteration agent, especia
    - [ ] Run `python3 gridworld.py -a q -k 100` and observe Q-value convergence
    - [ ] Run the test cases underneath [`test_cases/q2`](./test_cases/q2/CONFIG)
 4. Answer in [`analysis.py`](./analysis.py):
-   - [ ] `What is your implementation strategy for Question 2 (Epsilon Greedy)? Explain.`
+   - [ ] `What is the output from running 'python3 gridworld.py -a q -k 100'?`
+   - [ ] `What is the output of each of the test cases underneath test_cases/q2?`
+   - [ ] `What is your implementation strategy for Phase 2 (Epsilon Greedy)? Explain.`
 
 ---
 
