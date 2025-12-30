@@ -289,42 +289,63 @@ def question7():
     - -l smallGrid: Uses the smallGrid layout
     - -a numTraining=10: Sets numTraining to 10 (but with -n 10, all games are training games)
     
-    Observations:
+    Actual Results:
     
-    Win Rate: [TO BE FILLED AFTER RUNNING]
-    Average Score: [TO BE FILLED AFTER RUNNING]
+    Win Rate: 0/10 (0.00) - Pacman lost all games
+    Average Score: -511.9
+    Individual Scores: -507.0, -507.0, -521.0, -505.0, -519.0, -515.0, -508.0, -509.0, -509.0, -519.0
+    Record: Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss
     
     Analysis:
-    With only 10 training episodes (numTraining=10) and 10 total games (-n 10), the Q-learning 
-    agent has very limited opportunity to learn. The smallGrid layout is simple, but Q-learning 
-    typically requires many more episodes to converge to a good policy.
     
-    Expected Behavior:
-    - The agent will likely perform poorly initially as it explores the state space
-    - With only 10 episodes, Q-values may not have converged
-    - Win rate may be low (0-30%) due to insufficient training
-    - Average score may be negative or very low if the agent hasn't learned to avoid ghosts
-      or collect food efficiently
+    Is Pacman failing or winning?
+    Pacman is FAILING. All 10 games resulted in losses, with a 0% win rate.
     
-    Justification:
-    Q-learning is a model-free reinforcement learning algorithm that learns from experience.
-    The algorithm needs to:
-    1. Explore the state-action space to discover good actions
-    2. Update Q-values based on rewards received
-    3. Converge to optimal Q-values over many episodes
+    What is happening?
+    With only 10 training episodes (numTraining=10), the Q-learning agent has extremely limited 
+    opportunity to learn an effective policy. The agent is essentially learning from scratch in 
+    each episode, and with such few episodes, the Q-values have not had time to converge to 
+    meaningful values.
     
-    With only 10 episodes:
-    - The agent may not have visited all important state-action pairs
-    - Q-values are still being initialized and updated
-    - The epsilon-greedy exploration strategy means some actions are random
-    - Convergence to optimal policy has likely not occurred
+    Parameter Configuration:
+    The command uses PacmanQAgent default parameters:
+    - Epsilon (ε) = 0.05 (exploration rate - lower than QLearningAgent's default of 0.5)
+    - Learning Rate (α) = 0.2 (lower than QLearningAgent's default of 0.5)
+    - Discount Factor (γ) = 0.8 (lower than QLearningAgent's default of 1.0)
+    - numTraining = 10 (specified in command, much lower than default 100)
     
-    This is in contrast to the test_cases/q3 results where 2000 training episodes led to 
-    excellent performance (100% win rate). The limited training in this command demonstrates
-    the importance of sufficient training episodes for Q-learning to be effective.
+    Justification for Poor Performance:
+    1. Insufficient Training Episodes: With only 10 episodes, the agent cannot sufficiently 
+       explore the state-action space. Q-learning requires many episodes to:
+       - Visit important state-action pairs multiple times
+       - Update Q-values based on experience
+       - Converge towards optimal Q-values
     
-    [Note: Actual results should be filled in after running the command and observing
-     the output, including specific win rate, average score, and any patterns in behavior]
+    2. Negative Scores: All scores are negative (ranging from -505 to -521), indicating that 
+       Pacman is consistently being caught by ghosts before collecting enough food. The agent 
+       has not learned to:
+       - Avoid ghosts effectively
+       - Collect food pellets efficiently
+       - Navigate the grid optimally
+    
+    3. Low Exploration (ε=0.05): With epsilon=0.05, the agent explores randomly only 5% of 
+       the time. This low exploration rate, combined with limited training episodes, means 
+       the agent may get stuck in suboptimal policies very quickly without sufficient 
+       exploration to discover better actions.
+    
+    4. Learning Rate (α=0.2): The learning rate of 0.2 is moderate, but with so few episodes, 
+       even with a good learning rate, the agent cannot accumulate enough learning experiences.
+    
+    Comparison with Successful Training:
+    In contrast, test_cases/q3 uses 2000 training episodes and achieves:
+    - 100% win rate (100/100 games won)
+    - Average score: 500.68
+    - Consistent high performance
+    
+    This dramatic difference (0% vs 100% win rate) clearly demonstrates that Q-learning 
+    requires sufficient training episodes to be effective. The 10 episodes used in this 
+    command are far too few for the agent to learn a viable policy, resulting in complete 
+    failure across all games.
     """
 
 def question11():
