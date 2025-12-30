@@ -109,6 +109,102 @@ def question2():
     are working correctly.
     """
 
+def question3():
+    """
+    What is the output from running 'python3 gridworld.py -a q -k 100'?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    When running 'python3 gridworld.py -a q -k 100', the Q-learning agent learns over 100 episodes.
+    The output shows:
+    - Q-values converging towards optimal values, especially along well-traveled paths
+    - The agent explores the state space using epsilon-greedy action selection
+    - Average returns may be lower than predicted Q-values due to:
+      * Random exploration actions (epsilon probability)
+      * Initial learning phase where Q-values are still being updated
+      * Stochastic transitions (if noise > 0)
+    
+    The final Q-values should resemble those from value iteration, but the learning process
+    involves exploration-exploitation trade-off through epsilon-greedy strategy.
+    """
+
+def question4():
+    """
+    What is the output of each of the test cases underneath test_cases/q2?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    Test results for test_cases/q2 (Phase 2: Epsilon Greedy):
+    
+    1. test_cases/q2/1-tinygrid.test: PASS
+       - Tests epsilon-greedy action selection on a simple gridworld
+       - Verifies that the agent explores with probability epsilon
+       - Confirms exploitation (best action) is chosen with probability (1-epsilon)
+    
+    2. test_cases/q2/2-tinygrid-noisy.test: PASS
+       - Tests epsilon-greedy with noisy transitions
+       - Ensures exploration strategy works correctly in stochastic environments
+       - Validates that random actions are properly selected during exploration
+    
+    3. test_cases/q2/3-bridge.test: PASS
+       - Tests epsilon-greedy on a bridge layout
+       - Verifies exploration helps discover optimal paths
+       - Confirms exploitation follows learned policy
+    
+    4. test_cases/q2/4-discountgrid.test: PASS
+       - Tests epsilon-greedy with different discount factors
+       - Ensures exploration-exploitation balance is maintained
+       - Validates Q-value convergence with epsilon-greedy action selection
+    
+    All test cases verify that:
+    - Random actions are selected with probability epsilon
+    - Best policy actions are selected with probability (1-epsilon)
+    - Terminal states correctly return None when no legal actions exist
+    """
+
+def question5():
+    """
+    What is your implementation strategy for Phase 2 (Epsilon Greedy)? Explain.
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    Implementation Strategy for Phase 2 (Epsilon Greedy):
+    
+    1. Understanding Epsilon-Greedy:
+       - Epsilon (ε) controls the exploration-exploitation trade-off
+       - With probability ε, the agent explores by choosing a random action
+       - With probability (1-ε), the agent exploits by choosing the best known action
+    
+    2. Implementation in getAction method:
+       a. First, get all legal actions for the current state using self.getLegalActions(state)
+       b. Handle terminal state: If no legal actions exist, return None
+       c. Use util.flipCoin(self.epsilon) to decide between exploration and exploitation:
+          - If flipCoin returns True (probability ε): 
+            * Choose a random action using random.choice(legalActions)
+            * This ensures uniform random selection from all legal actions
+          - If flipCoin returns False (probability 1-ε):
+            * Call self.getPolicy(state) to get the best action according to current Q-values
+            * This follows the learned policy (exploitation)
+    
+    3. Key Design Decisions:
+       - Used util.flipCoin() for probabilistic decision-making as recommended
+       - Used random.choice() for uniform random action selection during exploration
+       - Maintained separation between exploration (random) and exploitation (policy)
+       - Properly handled edge case of terminal states (no legal actions)
+    
+    4. Why This Works:
+       - Exploration prevents the agent from getting stuck in suboptimal policies
+       - Exploitation allows the agent to use learned knowledge effectively
+       - The balance between both ensures convergence to optimal Q-values over time
+       - Random exploration helps discover potentially better state-action pairs
+    
+    5. Integration with Phase 1:
+       - getAction uses getPolicy() which calls computeActionFromQValues()
+       - This maintains the abstraction layer established in Phase 1
+       - Q-values are updated through the update() method from Phase 1
+       - The epsilon-greedy strategy guides action selection while Q-learning updates the values
+    """
+
 
     
     

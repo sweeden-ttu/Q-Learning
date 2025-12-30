@@ -121,9 +121,15 @@ class QLearningAgent(ReinforcementAgent):
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " hint: You may access eps with self.epsilon. with that propabilities, you will choose random, otherwise you will follow policy by self.getPolicy(state)"
         
-
-        return action
-        util.raiseNotDefined()
+        if len(legalActions) == 0:
+            return None
+        
+        if util.flipCoin(self.epsilon):
+            # With probability epsilon, choose a random action
+            action = random.choice(legalActions)
+        else:
+            # Otherwise, follow the best policy
+            action = self.getPolicy(state)
 
         return action
 
