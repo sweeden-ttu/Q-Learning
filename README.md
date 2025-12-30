@@ -175,6 +175,15 @@ Play around with the various learning parameters to see how they affect the agen
 4. Run test cases and document results:
    - [ ] Run the test cases underneath [`test_cases/q3`](./test_cases/q3/CONFIG)
    - [ ] Document the output in [`analysis.py`](./analysis.py)
+5. Test PacmanQAgent:
+   - [ ] Using your code run:
+   ```zsh
+   python pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
+   ```
+   - [ ] Report on what is happening in [`analysis.py`](./analysis.py):
+     - Is Pacman failing or winning?
+     - What is your "Average Score" and your "Win Rate"?
+     - Justify your observations.
 
 ---
 
@@ -249,6 +258,16 @@ python3 pacman.py -p ApproximateQAgent -a extractor=SimpleExtractor -x 50 -n 60 
 4. Answer in [`analysis.py`](./analysis.py):
    - [ ] `Run python pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10 using your code and report on what is happening. Is Pacman failing or winning? What is your "Average Score" and your "Win Rate"? Justify your observations.`
    - [ ] `What is your implementation strategy for Question 4 (Approximate Q-Learning)? Explain.`
+   
+5. Test PacmanQAgent:
+   - [ ] Using your code run:
+   ```zsh
+   python pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
+   ```
+   - [ ] Report on what is happening in [`analysis.py`](./analysis.py):
+     - Is Pacman failing or winning?
+     - What is your "Average Score" and your "Win Rate"?
+     - Justify your observations.
 
 **Important Reminders:**
 

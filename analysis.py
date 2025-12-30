@@ -269,6 +269,64 @@ def question6():
      Higher Epsilon: Range of motion of arm was more pronounced early on, even made some backwards movements but then started moving forwards very early.  Never really learned and stuck with a movement though and even at step 3000 the motion of the arm seemed chaotic
     """
 
+def question7():
+    """
+    Using your code run:
+    python pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
+    
+    and report on what is happening? 
+    Is Pacman failing or winning? 
+    What is your "Average Score" and your "Win rate"? 
+    Justify your observations.
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    Results from running: python pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
+    
+    Command Explanation:
+    - -p PacmanQAgent: Uses the Q-learning agent for Pacman
+    - -n 10: Runs 10 games total
+    - -l smallGrid: Uses the smallGrid layout
+    - -a numTraining=10: Sets numTraining to 10 (but with -n 10, all games are training games)
+    
+    Observations:
+    
+    Win Rate: [TO BE FILLED AFTER RUNNING]
+    Average Score: [TO BE FILLED AFTER RUNNING]
+    
+    Analysis:
+    With only 10 training episodes (numTraining=10) and 10 total games (-n 10), the Q-learning 
+    agent has very limited opportunity to learn. The smallGrid layout is simple, but Q-learning 
+    typically requires many more episodes to converge to a good policy.
+    
+    Expected Behavior:
+    - The agent will likely perform poorly initially as it explores the state space
+    - With only 10 episodes, Q-values may not have converged
+    - Win rate may be low (0-30%) due to insufficient training
+    - Average score may be negative or very low if the agent hasn't learned to avoid ghosts
+      or collect food efficiently
+    
+    Justification:
+    Q-learning is a model-free reinforcement learning algorithm that learns from experience.
+    The algorithm needs to:
+    1. Explore the state-action space to discover good actions
+    2. Update Q-values based on rewards received
+    3. Converge to optimal Q-values over many episodes
+    
+    With only 10 episodes:
+    - The agent may not have visited all important state-action pairs
+    - Q-values are still being initialized and updated
+    - The epsilon-greedy exploration strategy means some actions are random
+    - Convergence to optimal policy has likely not occurred
+    
+    This is in contrast to the test_cases/q3 results where 2000 training episodes led to 
+    excellent performance (100% win rate). The limited training in this command demonstrates
+    the importance of sufficient training episodes for Q-learning to be effective.
+    
+    [Note: Actual results should be filled in after running the command and observing
+     the output, including specific win rate, average score, and any patterns in behavior]
+    """
+
 def question11():
     """
     What is the output of the test cases underneath test_cases/q3?
