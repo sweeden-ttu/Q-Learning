@@ -214,8 +214,136 @@ def question5():
        - The epsilon-greedy strategy guides action selection while Q-learning updates the values
     """
 
-
+def question6():
+    """
+    Phase 3: Q-Learning Generalization (Crawler Robot)
     
+    Document the default parameter values and the parameter tuning plan.
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    Phase 3: Q-Learning Generalization (Crawler Robot) - Parameter Tuning
+    
+    ## Default Parameter Values
+    
+    From graphicsCrawlerDisplay.py, the default raw values are:
+    - self.ep = 0 (epsilon raw value)
+    - self.ga = 2 (gamma/discount raw value)
+    - self.al = 2 (alpha/learning rate raw value)
+    
+    These raw values are converted using the sigmoid function: sigmoid(x) = 1.0 / (1.0 + 2.0 ** (-x))
+    
+    Calculated Default Values:
+    - Epsilon (ε): sigmoid(0) = 0.5 (exploration rate)
+    - Discount Factor (γ): sigmoid(2) = 0.8 (discount rate)
+    - Learning Rate (α): sigmoid(2) = 0.8 (learning rate)
+    
+    ## Parameter Tuning Plan
+    
+    The plan is to tune each parameter one-by-one, testing the second lowest value, default value, 
+    and second highest value, while keeping the other two parameters at their defaults.
+    
+    Testing Sequence:
+    
+    1. Learning Rate (α) Tuning (keep ε=0.5, γ=0.8)
+       - Second lowest: α = 0.3
+       - Default: α = 0.8
+       - Second highest: α = 0.95
+    
+    2. Epsilon (ε) Tuning (keep α=0.8, γ=0.8)
+       - Second lowest: ε = 0.2
+       - Default: ε = 0.5
+       - Second highest: ε = 0.8
+    
+    3. Discount Factor (γ) Tuning (keep α=0.8, ε=0.5)
+       - Second lowest: γ = 0.5
+       - Default: γ = 0.8
+       - Second highest: γ = 0.95
+    
+    For each parameter, we will observe:
+    - Learning Rate (α): Effect on convergence speed, stability of learning
+    - Epsilon (ε): Balance between exploration and exploitation, discovery of optimal policies
+    - Discount Factor (γ): Emphasis on immediate vs. long-term rewards, planning horizon
+    """
+
+def question7():
+    """
+    What happens when you run python crawler.py? Describe the robot's behavior and learning process.
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    [To be filled in after running crawler.py and observing the robot's behavior]
+    
+    When running python crawler.py, the crawler robot GUI appears with interactive controls.
+    The robot starts in the middle position and learns to crawl forward by adjusting arm and hand angles.
+    
+    Observations to document:
+    - Initial behavior of the robot
+    - How the robot learns over time
+    - Changes in velocity and position over time
+    - Convergence of the learning process
+    """
+
+def question8():
+    """
+    What values did you use for the learning rate? What did you observe the effect was on convergence speed?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    [To be filled in after testing learning rate values]
+    
+    Testing sequence for Learning Rate (α) with ε=0.5, γ=0.8:
+    - α = 0.3 (second lowest)
+    - α = 0.8 (default)
+    - α = 0.95 (second highest)
+    
+    Observations to document for each value:
+    - Convergence speed (how quickly Q-values stabilize)
+    - Stability of learning (smooth vs. oscillating)
+    - Final performance of the robot
+    """
+
+def question9():
+    """
+    What values did you use for epsilon? What did you observe the effect was on exploration vs exploitation?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    [To be filled in after testing epsilon values]
+    
+    Testing sequence for Epsilon (ε) with α=0.8, γ=0.8:
+    - ε = 0.2 (second lowest)
+    - ε = 0.5 (default)
+    - ε = 0.8 (second highest)
+    
+    Observations to document for each value:
+    - Balance between exploration and exploitation
+    - Discovery of optimal policies
+    - Convergence behavior
+    - Final learned behavior
+    """
+
+def question10():
+    """
+    What values did you use for discount factor? What did you observe the effect was on long-term planning?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    return """
+    [To be filled in after testing discount factor values]
+    
+    Testing sequence for Discount Factor (γ) with α=0.8, ε=0.5:
+    - γ = 0.5 (second lowest)
+    - γ = 0.8 (default)
+    - γ = 0.95 (second highest)
+    
+    Observations to document for each value:
+    - Emphasis on immediate vs. long-term rewards
+    - Planning horizon (short-term vs. long-term)
+    - Convergence behavior
+    - Final learned policy quality
+    """
+
+
     
 if __name__ == '__main__':
     print('Answers to analysis questions:')
