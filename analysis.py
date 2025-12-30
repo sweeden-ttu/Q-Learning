@@ -11,6 +11,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+import util
 
 ######################
 # ANALYSIS QUESTIONS #
@@ -19,6 +20,19 @@
 # Set the given parameters to obtain the specified policies through
 # value iteration.
 
+def question1():
+    """
+    What is your implementation strategy for Q-Learning in Phase 1?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    util.raiseNotDefined()
+
+def question2():
+    """
+    What is the outcome for each of the test cases underneath `test_cases/q1` folder?
+    """
+    "*** CS5368 Fall 2025 YOUR CODE HERE ***"
+    util.raiseNotDefined()
 
 
     
