@@ -212,7 +212,11 @@ class ApproximateQAgent(PacmanQAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " Hint make use of self.featExtractor.getFeatures().items() and self.weights()"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        qValue = 0.0
+        for feature, value in features.items():
+            qValue += self.weights[feature] * value
+        return qValue
 
     def update(self, state, action, nextState, reward):
         """
@@ -220,7 +224,12 @@ class ApproximateQAgent(PacmanQAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " Hint reward is passed. Discounted factor is self.disscount"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        currentQValue = self.getQValue(state, action)
+        nextStateValue = self.getValue(nextState)
+        correction = reward + self.discount * nextStateValue - currentQValue
+        for feature, value in features.items():
+            self.weights[feature] += self.alpha * correction * value
 
     def final(self, state):
         "Called at the end of each game."
