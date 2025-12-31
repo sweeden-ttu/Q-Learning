@@ -375,63 +375,186 @@ def question12():
     return """
     Implementation Strategy for Phase 4 (Approximate Q-Learning):
     
-    1. Understanding Approximate Q-Learning:
-       - Standard Q-learning maintains Q(s,a) for every state-action pair
-       - Approximate Q-learning uses feature-based representation: Q(s,a) = Σ f_i(s,a) · w_i
-       - This allows generalization across states with similar features
-       - Weights (w_i) are learned instead of individual Q-values
+    ========================================================================
+    PHILOSOPHICAL SHIFT: FROM STATES TO FEATURES OF (STATE, ACTION) PAIRS
+    ========================================================================
     
-    2. Class Structure:
-       - ApproximateQAgent extends PacmanQAgent, which extends QLearningAgent
-       - Inherits epsilon-greedy action selection from QLearningAgent
-       - Overrides getQValue and update methods for feature-based computation
-       - Uses a FeatureExtractor to extract features from (state, action) pairs
+    The key paradigm shift in Phase 4 is to stop thinking in terms of individual
+    states and start thinking in terms of **features** that capture meaningful
+    structure across states. Instead of maintaining Q(s,a) for every state-action
+    pair (tabular approach), approximate Q-learning represents Q-values as:
     
-    3. Implementation of getQValue(state, action):
-       - Get feature vector: features = self.featExtractor.getFeatures(state, action)
-       - Compute dot product: Q(s,a) = Σ features[feature] * weights[feature]
-       - Iterate through all features in the feature vector
-       - Sum up feature_value * weight for each feature
-       - Return the computed Q-value
-       
-       Key insight: This replaces the table lookup of Q-learning with a linear
-       combination of features, allowing generalization to unseen states.
+        Q(s, a) = Σ_i w_i · f_i(s, a)
     
-    4. Implementation of update(state, action, nextState, reward):
-       - Get feature vector for current (state, action): features = self.featExtractor.getFeatures(state, action)
-       - Compute current Q-value: currentQValue = self.getQValue(state, action)
-       - Compute value of next state: nextStateValue = self.getValue(nextState)
-       - Calculate TD error (correction): correction = reward + γ * nextStateValue - currentQValue
-       - Update each weight: w_i ← w_i + α * correction * f_i(s, a)
-       - Iterate through all features and update their corresponding weights
-       
-       Key insight: This is gradient descent on the TD error. Each weight is updated
-       proportionally to the TD error and the feature value, scaled by the learning rate.
+    where f_i(s, a) are features extracted from (state, action) pairs, and w_i
+    are learned weights. This allows the agent to generalize from seen to unseen
+    states by recognizing that states with similar features should have similar
+    Q-values.
     
-    5. Key Design Decisions:
-       - Used self.getValue(nextState) to compute V(s') = max_a Q(s', a)
-       - This leverages the abstraction from Phase 1 - getValue uses getQValue
-       - For ApproximateQAgent, getValue calls getQValue which uses features
-       - Maintained separation: getQValue computes Q from features, update modifies weights
-       - Used self.alpha for learning rate and self.discount for discount factor
-       
-    6. Feature Extractors:
-       - IdentityExtractor: Maps each (state, action) to a unique feature (equivalent to tabular Q-learning)
-       - SimpleExtractor: Uses domain-specific features (food distance, ghost proximity, etc.)
-       - CoordinateExtractor: Uses coordinate-based features
-       - The same update algorithm works with any feature extractor
+    Successful learning depends on features encoding meaningful structure such as:
+    - **Progress toward goals**: distance to terminal reward states
+    - **Risk exposure**: proximity to negative rewards or dangerous areas
+    - **Reward structure**: combining reward magnitudes with distance (discount-aware)
+    - **Positional patterns**: coordinate-based or layout-specific features
     
-    7. Why This Works:
-       - Feature-based representation allows the agent to generalize from seen to unseen states
-       - States with similar features will have similar Q-values
-       - Weight updates propagate information across similar states
-       - This enables learning in large state spaces where tabular Q-learning would be infeasible
+    Features must capture these patterns rather than just memorizing individual
+    state identities, enabling the agent to perform well on new, unseen states.
     
-    8. Testing Strategy:
-       - First test with IdentityExtractor: Should behave like standard Q-learning
-       - Then test with SimpleExtractor: Should demonstrate generalization
-       - Verify that weights are being updated correctly
-       - Check that Q-values converge to reasonable values
+    ========================================================================
+    FEATURE-AGNOSTIC IMPLEMENTATION
+    ========================================================================
+    
+    The core implementation is completely feature-agnostic - it treats all features
+    equally without any special-casing of states or actions:
+    
+    1. **getQValue(state, action)**:
+       - Literally computes dot product: Q(s,a) = Σ w_i * f_i(s,a)
+       - Gets feature vector: features = self.featExtractor.getFeatures(state, action)
+       - Iterates through features and computes: qValue += weights[feature] * value
+       - Works with ANY feature extractor - no knowledge of what features mean
+    
+    2. **update(state, action, nextState, reward)**:
+       - Computes TD error: correction = R(s,a) + γ * V(s') - Q(s,a)
+       - Updates each weight: w_i ← w_i + α * correction * f_i(s,a)
+       - No special logic for different feature types - pure gradient descent
+       - Same update rule works for IdentityExtractor, CoordinateExtractor, or
+         any custom extractor because it operates purely on feature values
+    
+    This design allows any feature extractor to work with the same implementation,
+    making the code modular and extensible.
+    
+    ========================================================================
+    TEST-SPECIFIC FEATURE DESIGN RATIONALE
+    ========================================================================
+    
+    Each grid test validates different aspects of feature design:
+    
+    **1. tinygrid (basic feature extraction)**
+       - Tests fundamental feature extraction capability
+       - Can be solved with simple features like:
+         * Distance to goal (Manhattan distance to +10 terminal)
+         * Distance to penalty (Manhattan distance to -10 terminal)
+         * Bias feature (always 1.0)
+       - Validates that distance-based features capture progress toward goals
+    
+    **2. tinygrid-noisy (generalization over noise)**
+       - Same layout as tinygrid but with transition noise (stochastic)
+       - Tests that features generalize across similar positions despite noise
+       - Must NOT memorize individual Q(s,a) values - must learn patterns
+       - Features that encode "moving toward goal" vs "moving away" work well
+       - Validates that feature-based learning is robust to environmental uncertainty
+    
+    **3. bridge (risk-aware features)**
+       - Layout with narrow safe path and dangerous shortcuts
+       - Tests ability to distinguish safe vs risky actions using features
+       - Requires features that encode:
+         * Risk detection: proximity to -100 penalty states (cliffs)
+         * Safe path identification: whether action keeps agent on bridge
+         * Progress along safe path: distance to end of bridge + goal
+       - Weight on "nearCliff" feature becomes strongly negative through experience
+       - Weight on "onBridge" + negative distance-to-goal become positive
+       - Validates that features can learn to avoid high-risk, high-reward shortcuts
+         in favor of safer long-term paths
+    
+    **4. discountgrid (discount-aware features)**
+       - Multiple rewards at different distances and magnitudes
+       - Tests that features correctly interact with discount factor γ
+       - Agent must weigh "big but far" vs "small but near" rewards
+       - Features should combine reward magnitude with distance:
+         * Separate features for distance to each reward type (e.g., distTo+1, distTo+10)
+         * Or combined: expectedRewardNearby that accounts for reward/distance ratio
+       - Update rule naturally learns stronger weights on features related to
+         large positive outcomes, combining with γ to value immediate vs future rewards
+       - Validates that discount factor is properly incorporated in feature weights
+    
+    **5. coord-extractor (implementation correctness)**
+       - Uses CoordinateExtractor which exposes x/y coordinates and actions
+       - Tests that Q-values come from feature weights (not hardcoded table lookups)
+       - Verifies implementation is truly feature-based:
+         * Q(s,a) must be computed as dot product of weights and coordinate features
+         * Weight updates must adjust the correct weights for coordinate patterns
+       - No special-casing of states or actions anywhere in ApproximateQAgent
+       - Validates that the implementation treats features as opaque values
+    
+    ========================================================================
+    IMPLEMENTATION DETAILS
+    ========================================================================
+    
+    **Class Structure:**
+    - ApproximateQAgent extends PacmanQAgent, which extends QLearningAgent
+    - Inherits epsilon-greedy action selection from QLearningAgent
+    - Overrides getQValue and update methods for feature-based computation
+    - Uses a FeatureExtractor (provided via constructor) to extract features
+    
+    **Weight Storage:**
+    - self.weights is a util.Counter() mapping feature names (keys from extractor)
+      to learned weight values (floats)
+    - Defaults to 0.0 for unseen features (Counter behavior)
+    
+    **getQValue(state, action) Implementation:**
+    - Get feature vector: features = self.featExtractor.getFeatures(state, action)
+    - Compute dot product: qValue = Σ weights[feature] * features[feature]
+    - Return computed Q-value
+    - Key: This is the ONLY way Q-values are computed - abstraction enables
+      feature-based computation while getValue/getPolicy remain unchanged
+    
+    **update(state, action, nextState, reward) Implementation:**
+    - Get features: features = self.featExtractor.getFeatures(state, action)
+    - Compute current Q: currentQValue = self.getQValue(state, action)
+    - Compute next state value: nextStateValue = self.getValue(nextState)
+      (This uses getValue which calls getQValue, maintaining abstraction)
+    - Calculate TD error: correction = reward + self.discount * nextStateValue - currentQValue
+    - Update each weight: self.weights[feature] += self.alpha * correction * value
+    - This is gradient descent on TD error - each weight updated proportionally
+      to TD error and feature value
+    
+    **final(state) Implementation:**
+    - Calls parent's final method: PacmanQAgent.final(self, state)
+    - Handles episode bookkeeping and training/test phase transitions
+    
+    ========================================================================
+    IMPLEMENTATION CORRECTNESS VERIFICATION
+    ========================================================================
+    
+    **IdentityExtractor Test:**
+    - Should behave identically to tabular Q-learning
+    - Each (state, action) gets unique feature: feats[(state,action)] = 1.0
+    - Equivalent to maintaining separate Q-value for each state-action pair
+    - Validates that feature-based computation matches tabular when features
+      are identity mappings
+    
+    **CoordinateExtractor Test:**
+    - Uses coordinate-based features: state position, x-coordinate, y-coordinate, action
+    - Tests that coordinate patterns are learned correctly
+    - Validates implementation works with non-identity feature extractors
+    - Verifies Q-values are computed from feature weights, not hardcoded
+    
+    **SimpleExtractor (Pacman):**
+    - Domain-specific features: food distance, ghost proximity, bias
+    - Demonstrates generalization on larger state spaces
+    - Shows that feature design matters for performance
+    
+    ========================================================================
+    KEY INSIGHTS
+    ========================================================================
+    
+    1. **Feature-based thinking**: Stop memorizing states, start recognizing patterns
+       captured by features that generalize across similar states.
+    
+    2. **Implementation is feature-agnostic**: The core code (getQValue, update)
+       doesn't care what features mean - it just computes dot products and updates
+       weights. Feature DESIGN (in the extractor) determines what patterns are learned.
+    
+    3. **Grid tests validate different aspects**: Each test checks that features can
+       capture a specific type of structure (distance, risk, discount, coordinates).
+    
+    4. **Abstraction enables generalization**: By using getValue/getQValue abstraction
+       from Phase 1, ApproximateQAgent inherits all QLearningAgent functionality
+       while only overriding the Q-value computation mechanism.
+    
+    5. **Weight updates propagate information**: When weights are updated based on
+       TD error, information propagates to all states sharing those features,
+       enabling learning from limited experience.
     """
 
 def question13():

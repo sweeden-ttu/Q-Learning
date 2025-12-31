@@ -189,17 +189,32 @@ Play around with the various learning parameters to see how they affect the agen
 
 ### Phase 4: Approximate Q-Learning
 
-Implement an approximate Q-learning agent that learns weights for features of states, where many states might share the same features. Write your implementation in the `ApproximateQAgent` class in [`qlearningAgents.py`](qlearningAgents.py), which is a subclass of `PacmanQAgent`.
+Implement an approximate Q-learning agent that learns weights for **features of (state, action) pairs**, where many states might share the same features. Write your implementation in the `ApproximateQAgent` class in [`qlearningAgents.py`](qlearningAgents.py), which is a subclass of `PacmanQAgent`.
 
-**Why Approximate Q-Learning?**
+**The Key Paradigm Shift: From States to Features**
 
-Standard Q-learning maintains a separate Q-value for every state-action pair. This becomes infeasible when the state space is large (e.g., Pacman with many ghosts, food pellets, etc.). Approximate Q-learning instead represents the Q-function as a linear combination of features:
+The critical shift in Phase 4 is to **stop thinking in terms of individual states** and **start thinking in terms of features** that capture meaningful structure across states. Instead of maintaining Q(s,a) for every state-action pair (tabular approach), approximate Q-learning represents Q-values as a linear combination of features:
 
 $$Q(s, a) = \sum_{i} f_i(s, a) \cdot w_i$$
 
 where:
-- $f_i(s, a)$ are feature functions that extract relevant information from state-action pairs
+- $f_i(s, a)$ are feature functions that extract relevant information from **(state, action) pairs**
 - $w_i$ are learned weights associated with each feature
+
+**Why Approximate Q-Learning?**
+
+Standard Q-learning maintains a separate Q-value for every state-action pair. This becomes infeasible when the state space is large (e.g., Pacman with many ghosts, food pellets, etc.). Approximate Q-learning enables generalization: states with similar features will have similar Q-values, allowing the agent to perform well on unseen states.
+
+**What Makes Good Features?**
+
+Successful learning depends on features encoding meaningful structure rather than just memorizing individual state identities:
+
+- **Progress toward goals**: distance to terminal reward states
+- **Risk exposure**: proximity to negative rewards or dangerous areas  
+- **Reward structure**: combining reward magnitudes with distance (discount-aware)
+- **Positional patterns**: coordinate-based or layout-specific features
+
+Features must capture these patterns to enable generalization across similar states.
 
 **Weight Update Rule:**
 
@@ -211,11 +226,33 @@ where the correction (TD error) is:
 
 $$correction = R(s, a) + \gamma V(s') - Q(s, a)$$
 
-This is the same temporal difference error as in standard Q-learning.
+This is the same temporal difference error as in standard Q-learning. The key difference is that updates adjust feature weights, which then affect Q-values for all states sharing those features.
+
+**Feature-Agnostic Implementation:**
+
+Your implementation must be **completely feature-agnostic** - it should treat all features equally without any special-casing of states or actions:
+
+- `getQValue`: Literally computes dot product `Σ w_i * f_i(s,a)` over whatever features the extractor provides
+- `update`: Updates weights using TD error and feature values, regardless of what the features mean
+- This design allows any feature extractor to work with the same implementation
 
 **Feature Extractors:**
 
 Feature functions are provided in [`featureExtractors.py`](featureExtractors.py). Feature vectors are `util.Counter` objects (dictionary-like) containing non-zero feature-value pairs; all omitted features have value zero.
+
+- `IdentityExtractor`: Maps each (state, action) to a unique feature - equivalent to tabular Q-learning
+- `CoordinateExtractor`: Extracts coordinate-based features (x, y, action) - used by grid tests
+- `SimpleExtractor`: Domain-specific features for Pacman (food distance, ghost proximity, etc.)
+
+**Understanding the Grid Tests:**
+
+The autograder's grid tests validate that your features capture meaningful structure, not just state identity:
+
+1. **tinygrid**: Tests basic feature extraction - can be solved with simple distance-to-goal features
+2. **tinygrid-noisy**: Tests generalization - features must work across similar positions despite noise, not memorize individual Q(s,a)
+3. **bridge**: Tests risk-aware features - must distinguish safe path vs dangerous shortcuts using features that encode risk/cliff proximity
+4. **discountgrid**: Tests discount-aware features - features must combine reward magnitude with distance, accounting for discount factor γ
+5. **coord-extractor**: Tests implementation correctness - verifies that Q-values come from feature weights (not hardcoded), using coordinate-based features
 
 **Testing Your Implementation:**
 
@@ -239,44 +276,72 @@ python3 pacman.py -p ApproximateQAgent -a extractor=SimpleExtractor -x 50 -n 60 
 
 **Implementation Steps:**
 
-1. Understand the class hierarchy:
+1. Understand the class hierarchy and feature-based approach:
    - [ ] Read `PacmanQAgent` to understand how it extends `QLearningAgent`
    - [ ] Examine `ApproximateQAgent` stub and its relationship to `PacmanQAgent`
    - [ ] Study the feature extractors in [`featureExtractors.py`](featureExtractors.py)
+   - [ ] Understand the shift: think in terms of **features of (state, action) pairs**, not individual states
 
-2. Implement `ApproximateQAgent`:
-   - [ ] Initialize the weight vector (`self.weights`) as a `util.Counter()`
-   - [ ] Override `getQValue(state, action)` to compute the dot product of features and weights
-   - [ ] Override `update(state, action, nextState, reward)` to update weights using the gradient descent rule
+2. Implement `ApproximateQAgent` (feature-agnostic implementation):
+   - [ ] Initialize the weight vector (`self.weights`) as a `util.Counter()` to store feature weights
+   - [ ] Override `getQValue(state, action)` to compute the dot product of features and weights:
+     - Get features: `features = self.featExtractor.getFeatures(state, action)`
+     - Compute: `Q(s,a) = Σ weights[feature] * features[feature]`
+     - Return the computed Q-value
+     - **Important**: This must work with ANY feature extractor - no special-casing!
+   - [ ] Override `update(state, action, nextState, reward)` to update weights using gradient descent:
+     - Compute TD error: `correction = reward + γ * V(s') - Q(s,a)`
+     - Update each weight: `weights[feature] += α * correction * features[feature]`
+     - **Important**: Update weights for ALL features in the feature vector, regardless of what they represent
    - [ ] Implement `final(state)` to handle end-of-episode bookkeeping (call parent's final method)
 
-3. Test and validate:
-   - [ ] First run with `IdentityExtractor` to verify equivalence with basic Q-learning
-   - [ ] Run `python3 pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10`
-   - [ ] Then test with `SimpleExtractor` on larger grids
+3. Verify implementation correctness:
+   - [ ] First run with `IdentityExtractor` to verify equivalence with basic Q-learning:
+     ```zsh
+     python3 pacman.py -p ApproximateQAgent -x 2000 -n 2010 -l smallGrid
+     ```
+     - Should behave identically to tabular Q-learning (each (s,a) gets unique feature)
+   - [ ] Run `python3 pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10` for comparison
+   - [ ] Then test with `SimpleExtractor` on larger grids to see generalization in action
 
-4. Answer in [`analysis.py`](./analysis.py):
+4. Run and understand the grid tests:
+   - [ ] Run the test cases in [`test_cases/q4`](./test_cases/q4):
+     ```zsh
+     python3 autograder.py -q q4
+     ```
+   - [ ] Understand what each test validates:
+     - `tinygrid`: Basic feature extraction (distance-based features)
+     - `tinygrid-noisy`: Generalization over noise (pattern learning, not memorization)
+     - `bridge`: Risk-aware features (safe vs dangerous paths)
+     - `discountgrid`: Discount-aware features (reward magnitude + distance)
+     - `coord-extractor`: Implementation correctness (truly feature-based, not hardcoded)
+   - [ ] Document the test outputs in [`analysis.py`](./analysis.py)
+
+5. Answer in [`analysis.py`](./analysis.py):
    - [ ] `What is your implementation strategy for Phase 4 (Approximate Q-Learning)? Explain.`
+     - Explain the shift from state-based to feature-based thinking
+     - Describe your feature-agnostic implementation approach
+     - Explain what each grid test validates about feature design
+     - Discuss why features must capture structure (distance, risk, reward) rather than memorize states
    
-5. Test PacmanQAgent:
+6. Test PacmanQAgent (for comparison):
    - [ ] Using your code run:
-   ```zsh
-   python3 pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
-   ```
+     ```zsh
+     python3 pacman.py -p PacmanQAgent -n 10 -l smallGrid -a numTraining=10
+     ```
    - [ ] Report on what is happening in [`analysis.py`](./analysis.py):
      - Is Pacman failing or winning?
      - What is your "Average Score" and your "Win Rate"?
-     - Justify your observations.
-
-6. Run remaining test cases:
-   - [ ] Run the remaining test cases in the [`test_cases/Q4`](./test_cases/q4) directory
-   - [ ] Report the outputs in analysis.py
+     - Justify your observations (why limited training episodes affect performance)
 
 **Important Reminders:**
 
-- `ApproximateQAgent` is a subclass of `QLearningAgent`, so it shares methods like `getAction`
+- `ApproximateQAgent` is a subclass of `QLearningAgent`, so it shares methods like `getAction` and `getPolicy`
 - Ensure your `QLearningAgent` methods call `getQValue` instead of accessing Q-values directly
 - This abstraction allows the overridden `getQValue` in `ApproximateQAgent` to provide feature-based Q-values
+- **Your implementation must be feature-agnostic**: `getQValue` and `update` should work with ANY feature extractor without special-casing
+- **Think in features, not states**: The grid tests validate that features capture meaningful structure (distance, risk, reward patterns), not just state identity
+- **No hardcoding**: The `coord-extractor` test specifically checks that Q-values come from feature weights, not hardcoded table lookups
 
 ---
 
