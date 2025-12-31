@@ -343,17 +343,5 @@ python3 pacman.py -p ApproximateQAgent -a extractor=SimpleExtractor -x 50 -n 60 
 - **Think in features, not states**: The grid tests validate that features capture meaningful structure (distance, risk, reward patterns), not just state identity
 - **No hardcoding**: The `coord-extractor` test specifically checks that Q-values come from feature weights, not hardcoded table lookups
 
----
-
-## What to Submit
-
-Submit the following files to Canvas:
-
-- `qlearningAgents.py` - Your implementation code
-- `qlearningAgents.txt` - Text version of your implementation
-- `analysis.py` - Your answers to the analysis questions
-- `partner.txt` - If you work with a partner, include their name in this file
-
-**Do not** change other files in this distribution or submit any original files other than those required.
 
 
