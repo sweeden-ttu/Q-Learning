@@ -228,17 +228,3 @@ python3 pacman.py -p ApproximateQAgent -a extractor=SimpleExtractor -x 50 -n 60 
 - Ensure your `QLearningAgent` methods call `getQValue` instead of accessing Q-values directly
 - This abstraction allows the overridden `getQValue` in `ApproximateQAgent` to provide feature-based Q-values
 
----
-
-## What to Submit
-
-Submit the following files to Canvas:
-
-- `qlearningAgents.py` - Your implementation code
-- `qlearningAgents.txt` - Text version of your implementation
-- `analysis.py` - Your answers to the analysis questions
-- `partner.txt` - If you work with a partner, include their name in this file
-
-**Do not** change other files in this distribution or submit any original files other than those required.
-
-
