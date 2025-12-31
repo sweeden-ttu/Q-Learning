@@ -327,7 +327,7 @@ def question7():
      the output, including specific win rate, average score, and any patterns in behavior]
     """
 
-def question11():
+def question8():
     """
     What is the output of the test cases underneath test_cases/q3?
     """
@@ -367,7 +367,7 @@ def question11():
     and avoiding ghosts.
     """
 
-def question12():
+def question9():
     """
     What is your implementation strategy for Phase 4 (Approximate Q-Learning)? Explain.
     """
