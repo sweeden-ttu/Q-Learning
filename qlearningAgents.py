@@ -44,6 +44,7 @@ class QLearningAgent(ReinforcementAgent):
 
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         """ hint: check util.Counter()"""
+        self.qValues = util.Counter()
 
     def getQValue(self, state, action):
         """
@@ -53,7 +54,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         "hint just get q.values from self.Qvalue. What parameters you need to pass? "
-        util.raiseNotDefined()
+        return self.qValues[(state, action)]
 
 
     def computeValueFromQValues(self, state):
@@ -65,8 +66,17 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " Hint: Major work here. you will need to use getLegalActions, loop over them, get the values for each state, action pair, and find the max"
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return 0.0
         
-        util.raiseNotDefined()
+        maxQValue = float('-inf')
+        for action in legalActions:
+            qValue = self.getQValue(state, action)
+            if qValue > maxQValue:
+                maxQValue = qValue
+        
+        return maxQValue
 
     def computeActionFromQValues(self, state):
         """
@@ -76,7 +86,23 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         "Hint: return best action that maximum your Q-value" 
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return None
+        
+        # Find the maximum Q-value
+        maxQValue = float('-inf')
+        bestActions = []
+        for action in legalActions:
+            qValue = self.getQValue(state, action)
+            if qValue > maxQValue:
+                maxQValue = qValue
+                bestActions = [action]
+            elif qValue == maxQValue:
+                bestActions.append(action)
+        
+        # Break ties randomly
+        return random.choice(bestActions)
 
     def getAction(self, state):
         """
@@ -95,9 +121,15 @@ class QLearningAgent(ReinforcementAgent):
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " hint: You may access eps with self.epsilon. with that propabilities, you will choose random, otherwise you will follow policy by self.getPolicy(state)"
         
-
-        return action
-        util.raiseNotDefined()
+        if len(legalActions) == 0:
+            return None
+        
+        if util.flipCoin(self.epsilon):
+            # With probability epsilon, choose a random action
+            action = random.choice(legalActions)
+        else:
+            # Otherwise, follow the best policy
+            action = self.getPolicy(state)
 
         return action
 
@@ -112,7 +144,11 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** CS5368 Fall 2025 YOUR CODE HERE ***"
         " Hint: check update equation from the class, learning rate is self.alpha"
-        util.raiseNotDefined()
+        # Q-learning update: Q(s,a) = Q(s,a) + α * [R + γ * max_a' Q(s',a') - Q(s,a)]
+        currentQValue = self.getQValue(state, action)
+        nextStateValue = self.getValue(nextState)
+        sample = reward + self.discount * nextStateValue
+        self.qValues[(state, action)] = currentQValue + self.alpha * (sample - currentQValue)
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
